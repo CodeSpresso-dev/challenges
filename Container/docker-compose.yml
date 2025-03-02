@@ -1,0 +1,81 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - mynetwork
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  axonserver:
+    image: axoniq/axonserver
+    container_name: axonserver
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: always
+    ports:
+      - "8024:8024"  # Axon dashboard
+      - "8124:8124"  # Axon gRPC communication
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8024/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 9999
+    environment:
+      AXONIQ_AXONSERVER_STANDALONE: true
+    networks:
+      - mynetwork
+    volumes:
+      - axon_data:/data
+  customer-service:
+    image: codespresso/customer-service:latest  # Using Jib-generated image
+    container_name: customer-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/customer_ms
+      SPRING_DATASOURCE_USERNAME: customer
+      SPRING_DATASOURCE_PASSWORD: customer
+    ports:
+      - "8081:8081"
+    networks:
+      - mynetwork
+  order-service:
+    image: codespresso/order-service:latest  # Using Jib-generated image
+    container_name: order-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+      axonserver:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_ms
+      SPRING_DATASOURCE_USERNAME: order
+      SPRING_DATASOURCE_PASSWORD: order
+      AXON_AXONSERVER_SERVERS: axonserver:8124
+    ports:
+      - "8082:8082"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  axon_data:
