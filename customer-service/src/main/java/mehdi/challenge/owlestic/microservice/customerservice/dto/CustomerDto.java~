@@ -1,0 +1,4 @@
+package mehdi.challenge.owlestic.microservice.customerservice.dto;
+
+public record CustomerDto(String name, String email) {
+}

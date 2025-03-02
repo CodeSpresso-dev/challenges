@@ -1,0 +1,2 @@
+package mehdi.challenge.owlestic.microservice.customerservice;public interface CustomerService {
+}
