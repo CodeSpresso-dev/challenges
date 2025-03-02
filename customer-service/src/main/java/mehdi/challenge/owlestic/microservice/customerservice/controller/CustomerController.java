@@ -15,10 +15,7 @@ import mehdi.challenge.owlestic.microservice.customerservice.service.CustomerSer
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(
         name = "REST APIs for Customers in the My_Challenge application",
@@ -57,5 +54,20 @@ public class CustomerController {
         CustomerResponseDto customerResponse = customerService.createCustomer(customerRequestDto);
         ApiResponseDto<CustomerResponseDto> response = new ApiResponseDto<>(CustomerConstants.STATUS_201, CustomerConstants.MESSAGE_201, customerResponse);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(
+            summary = "Get Customer REST API(Only for testing)",
+            description = "REST API to get customer's information inside My_Challenge application"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status OK"
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponseDto<CustomerResponseDto>> getCustomerById(@PathVariable Long id) {
+        CustomerResponseDto customerResponse = new CustomerResponseDto(id, "Test", "Test@Test.com");
+        ApiResponseDto<CustomerResponseDto> response = new ApiResponseDto<>(CustomerConstants.STATUS_200, CustomerConstants.MESSAGE_200, customerResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
