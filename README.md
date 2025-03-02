@@ -25,6 +25,12 @@
 mvn compile jib:dockerBuild
 ~~~
 
+#### Run Docker Images
+##### The folder name '[container](https://github.com/CodeSpresso-dev/challenges/tree/main/Container)' includes database scripts and a Docker Compose file. To launch the microservices, download all files while maintaining the directory structure, then run the following command. Enjoy! 🚀
+~~~
+docker-compose up --build
+~~~
+
 ## API Documentation
 ### Once the services are up and running, access Swagger UI for API testing:
  [customer-service](http://localhost:8081/swagger-ui/index.html)
